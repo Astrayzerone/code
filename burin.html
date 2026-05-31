@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc mừng ngày 1/6 - Burin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* --- Màn hình Đăng nhập --- */
+        #login-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, #1a001a, #000000);
+            z-index: 100;
+            transition: opacity 1.5s ease;
+        }
+
+        .login-box {
+            text-align: center;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+            border: 1px solid rgba(255, 0, 128, 0.3);
+            backdrop-filter: blur(10px);
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ff66b2;
+            text-shadow: 0 0 10px #ff66b2;
+        }
+
+        input[type="password"] {
+            padding: 15px;
+            width: 60%;
+            font-size: 20px;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            letter-spacing: 5px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #ff0066, #cc00ff);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 102, 0.8);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(204, 0, 255, 0.9);
+        }
+
+        #error-msg {
+            color: #ff3333;
+            margin-top: 15px;
+            height: 20px;
+            font-size: 14px;
+        }
+
+        /* --- Màn hình Chính --- */
+        #main-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 2s ease;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .content-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            width: 90%;
+            pointer-events: none; 
+        }
+
+        /* --- Hiệu ứng Trái tim --- */
+        .heart-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .heart {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            background-color: #ff0055;
+            transform: rotate(-45deg);
+            animation: heartbeat 1.2s infinite, glow 2s infinite alternate;
+            box-shadow: 0 0 40px #ff0055;
+            opacity: 0; 
+            transition: opacity 2s;
+        }
+
+        .heart::before, .heart::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: #ff0055;
+            border-radius: 50%;
+        }
+
+        .heart::before {
+            top: -75px;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: 75px;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: rotate(-45deg) scale(1); }
+            15% { transform: rotate(-45deg) scale(1.2); }
+            30% { transform: rotate(-45deg) scale(1); }
+            45% { transform: rotate(-45deg) scale(1.2); }
+            100% { transform: rotate(-45deg) scale(1); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px #ff0055, 0 0 40px #ff0055; }
+            to { box-shadow: 0 0 50px #ff00aa, 0 0 80px #ff0055; }
+        }
+
+        /* --- Text Lời chúc --- */
+        #message-box {
+            font-family: 'Dancing Script', cursive;
+            font-size: 45px;
+            line-height: 1.5;
+            min-height: 150px;
+            color: #fff;
+            text-shadow: 0 0 15px #ff66b2, 0 0 30px #ff00ff, 0 0 45px #000000; 
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            padding: 0 10px;
+        }
+
+        .highlight {
+            color: #ffff00;
+            font-size: 60px;
+            text-shadow: 0 0 15px #ffaa00, 0 0 30px #ffff00;
+        }
+
+        /* --- RESPONSIVE CHO ĐIỆN THOẠI --- */
+        @media (max-width: 768px) {
+            .login-box h2 { font-size: 20px; }
+            input[type="password"] { width: 80%; }
+            
+            .heart {
+                width: 80px;
+                height: 80px;
+            }
+            .heart::before, .heart::after {
+                width: 80px;
+                height: 80px;
+            }
+            .heart::before { top: -40px; }
+            .heart::after { left: 40px; }
+            
+            #message-box { font-size: 32px; min-height: 100px; }
+            .highlight { font-size: 42px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Nhập mã bí mật nhỏ</h2>
+            <input type="password" id="pwd" maxlength="4" placeholder="••••">
+            <br>
+            <button onclick="checkPassword()">Tiến vào</button>
+            <div id="error-msg"></div>
+        </div>
+    </div>
+
+    <div id="main-screen">
+        <canvas id="fireworks"></canvas>
+        <div class="content-container">
+            <div class="heart-wrapper">
+                <div class="heart" id="main-heart"></div>
+            </div>
+            <div id="message-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC MẬT KHẨU ---
+        function checkPassword() {
+            const pwd = document.getElementById('pwd').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (pwd === "0905") {
+                const loginScreen = document.getElementById('login-screen');
+                loginScreen.style.opacity = '0';
+                
+                setTimeout(() => {
+                    loginScreen.style.display = 'none';
+                    const mainScreen = document.getElementById('main-screen');
+                    mainScreen.style.visibility = 'visible';
+                    mainScreen.style.opacity = '1';
+                    
+                    startCelebration(); 
+                }, 1500);
+            } else {
+                errorMsg.innerText = "Sai mật khẩu rồi! Hãy thử lại.";
+                document.getElementById('pwd').value = "";
+            }
+        }
+
+        document.getElementById("pwd").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                checkPassword();
+            }
+        });
+
+
+        // --- LOGIC HIỂN THỊ CHUỖI LỜI CHÚC DÀI ---
+        const messages = [
+            "Hệ thống đã được mở khóa...",
+            "Đang nạp dữ liệu yêu thương...",
+            "Xin chào <span class='highlight'>Burin</span> nhỏ!",
+            "Hôm nay là một ngày vô cùng đặc biệt...",
+            "Ngày <span class='highlight'>1/6</span>",
+            "Một ngày để tôn vinh sự rạng rỡ của chị...",
+            "Chúc Burin luôn xinh đẹp, vui vẻ...",
+            "Và ngập tràn hạnh phúc trong từng khoảnh khắc!",
+            "Hãy luôn mỉm cười và tỏa sáng nhé!",
+            "Mong Burin hôm nay sẽ không có sự tiêu cực nào hết nè",
+            "Tuy chị hiện tại lớn rồi nhưng mà hôm nay là ngày ngoại lệ...",
+            "Hôm nay chị cứ là 1 Burin nhỏ nhe không cầm làm người lớn đâu",
+            "Mọi điều tuyệt vời nhất sẽ luôn đến bên chị ❤️",
+            "<span class='highlight'>Burin Burin là mặt trời nhỏ</span>"
+        ];
+
+        function startCelebration() {
+            initFireworks(); 
+            
+            setTimeout(() => {
+                document.getElementById('main-heart').style.opacity = '1';
+            }, 3000);
+
+            const msgBox = document.getElementById('message-box');
+            let i = 0;
+
+            function showNextMessage() {
+                if (i < messages.length) {
+                    msgBox.style.opacity = '0'; 
+                    
+                    setTimeout(() => {
+                        msgBox.innerHTML = messages[i];
+                        msgBox.style.opacity = '1'; 
+                        i++;
+                        
+                        setTimeout(showNextMessage, 4500);
+                    }, 1500); 
+                }
+            }
+
+            setTimeout(showNextMessage, 1000);
+        }
+
+
+        // --- LOGIC PHÁO HOA & NỀN SAO LẤP LÁNH & MƯA KẸO ---
+        function initFireworks() {
+            const canvas = document.getElementById('fireworks');
+            const ctx = canvas.getContext('2d');
+            
+            let width, height;
+            let particles = [];
+            let stars = []; 
+            let candyArray = []; 
+            let textPoints = []; 
+            
+            const candyTypes = ['🍬', '🍭', '🍫', '🍩', '🍪', '🧁', '✨'];
+
+            function preRenderText() {
+                const offCanvas = document.createElement('canvas');
+                const offCtx = offCanvas.getContext('2d');
+                // Tối ưu hóa: Thu nhỏ font size gốc để chữ khi nổ gọn gàng hơn
+                const fSize = 18; 
+                offCanvas.width = fSize * 14;
+                offCanvas.height = fSize * 2.5;
+                offCtx.font = `bold ${fSize}px sans-serif`;
+                offCtx.fillStyle = '#fff';
+                offCtx.fillText("Burin", 5, fSize + 5);
+                
+                const imgData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+                textPoints = [];
+                for (let y = 0; y < offCanvas.height; y += 2) {
+                    for (let x = 0; x < offCanvas.width; x += 2) {
+                        const idx = (y * offCanvas.width + x) * 4;
+                        if (imgData.data[idx + 3] > 128) {
+                            textPoints.push({
+                                x: x - (offCanvas.width / 2),
+                                y: y - (fSize)
+                            });
+                        }
+                    }
+                }
+            }
+            preRenderText();
+
+            class Candy {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = -30;
+                    this.char = candyTypes[Math.floor(Math.random() * candyTypes.length)];
+                    this.speed = Math.random() * 1.5 + 1; 
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.spin = Math.random() * 0.04 - 0.02;
+                    this.size = Math.random() * 10 + 14;
+                }
+                update() {
+                    this.y += this.speed;
+                    this.angle += this.spin;
+                    this.x += Math.sin(this.y / 40) * 0.4;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.font = `${this.size}px Arial`;
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(this.char, 0, 0);
+                    ctx.restore();
+                }
+            }
+            
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                
+                stars = [];
+                const starCount = Math.floor((width * height) / 10000); 
+                for(let s = 0; s < starCount; s++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        size: Math.random() * 1.2 + 0.5, 
+                        alpha: Math.random(),            
+                        speed: Math.random() * 0.01 + 0.005 
+                    });
+                }
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor(x, y, color, customVx, customVy) {
+                    this.x = x;
+                    this.y = y;
+                    this.color = color;
+                    
+                    if (customVx !== undefined && customVy !== undefined) {
+                        this.vx = customVx;
+                        this.vy = customVy;
+                        this.isShape = true;
+                    } else {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = Math.random() * 4 + 1.5; 
+                        this.vx = Math.cos(angle) * speed;
+                        this.vy = Math.sin(angle) * speed;
+                        this.isShape = false;
+                    }
+                    
+                    this.friction = 0.95; 
+                    this.gravity = 0.1; 
+                    this.alpha = 1; 
+                    this.decay = this.isShape ? (Math.random() * 0.009 + 0.006) : (Math.random() * 0.025 + 0.02); 
+                }
+                update() {
+                    this.vx *= this.friction;
+                    this.vy *= this.friction;
+                    this.vy += this.gravity;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.alpha -= this.decay;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.isShape ? 2 : 1.5, 0, Math.PI * 2); 
+                    ctx.fillStyle = this.color;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = this.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            function createFirework(x, y, type) {
+                const hue = Math.floor(Math.random() * 360);
+                
+                if (!type) {
+                    const rand = Math.random();
+                    if (rand < 0.83) type = 'normal';
+                    else if (rand < 0.91) type = 'heart';
+                    else if (rand < 0.97) type = 'star';
+                    else type = 'text'; 
+                }
+
+                if (type === 'normal') {
+                    const color = `hsl(${hue}, 100%, 65%)`;
+                    const particleCount = 55; 
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push(new Particle(x, y, color));
+                    }
+                } 
+                else if (type === 'heart') {
+                    const color = `hsl(${Math.random() * 20 + 340}, 100%, 60%)`; 
+                    for (let t = 0; t < Math.PI * 2; t += 0.06) {
+                        const xt = 16 * Math.pow(Math.sin(t), 3);
+                        const yt = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                        const factor = 0.35; 
+                        particles.push(new Particle(x, y, color, xt * factor, yt * factor));
+                    }
+                } 
+                else if (type === 'star') {
+                    const color = `hsl(${Math.random() * 20 + 45}, 100%, 60%)`; 
+                    for (let i = 0; i < 100; i++) {
+                        const angle = (i / 100) * Math.PI * 2;
+                        const r = ((i % 20) < 10) ? 5 : 2.5; 
+                        const vx = Math.cos(angle) * r * (Math.random() * 0.2 + 0.8);
+                        const vy = Math.sin(angle) * r * (Math.random() * 0.2 + 0.8);
+                        particles.push(new Particle(x, y, color, vx, vy));
+                    }
+                } 
+                else if (type === 'text') {
+                    const textColors = ['#ff007f', '#ff00ff', '#00ffff', '#ffff00'];
+                    const chosenColor = textColors[Math.floor(Math.random() * textColors.length)];
+                    
+                    // Xử lý Responsive: Tự động điều chỉnh khoảng cách và độ bung dựa trên màn hình
+                    const isMobile = width < 768;
+                    const scale = isMobile ? 0.7 : 1; // Nhỏ lại trên điện thoại
+                    
+                    let textX;
+                    if (Math.random() < 0.5) {
+                        // Khu vực an toàn bên trái (20% - 35%), không quá sát mép
+                        textX = width * (0.20 + Math.random() * 0.15);
+                    } else {
+                        // Khu vực an toàn bên phải (65% - 80%), không quá sát mép
+                        textX = width * (0.65 + Math.random() * 0.15);
+                    }
+                    
+                    // Giới hạn chiều cao chỉ bắn ở nửa trên (10% - 40%) để không vướng trái tim
+                    const textY = height * (0.1 + Math.random() * 0.3);
+                    
+                    // Tốc độ bung nhỏ lại, gọn gàng, vừa vặn
+                    const currentSpeedFactor = (0.07 + Math.random() * 0.02) * scale; 
+                    
+                    textPoints.forEach(p => {
+                        const part = new Particle(textX, textY, chosenColor, p.x * currentSpeedFactor, p.y * currentSpeedFactor);
+                        part.gravity = 0; // Chữ cố định không rớt
+                        particles.push(part);
+                    });
+                }
+            }
+
+            function loop() {
+                requestAnimationFrame(loop);
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillRect(0, 0, width, height);
+
+                stars.forEach(star => {
+                    star.alpha += star.speed;
+                    if (star.alpha > 1 || star.alpha < 0.2) {
+                        star.speed = -star.speed;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = star.alpha;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                    ctx.restore();
+                });
+
+                if (Math.random() < 0.04) { 
+                    candyArray.push(new Candy());
+                }
+                for (let c = candyArray.length - 1; c >= 0; c--) {
+                    candyArray[c].update();
+                    candyArray[c].draw();
+                    if (candyArray[c].y > height + 30) {
+                        candyArray.splice(c, 1);
+                    }
+                }
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.update();
+                    p.draw();
+                    if (p.alpha <= 0) {
+                        particles.splice(i, 1);
+                    }
+                }
+
+                if (Math.random() < 0.035) { 
+                    createFirework(
+                        Math.random() * (width * 0.8) + (width * 0.1), 
+                        Math.random() * (height * 0.35) + (height * 0.05) 
+                    );
+                }
+            }
+            loop();
+        }
+    </script>
+</body>
+</html>
